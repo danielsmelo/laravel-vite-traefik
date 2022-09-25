@@ -1,0 +1,83 @@
+version: '3.8'
+
+volumes:
+    template-mysql-data:
+        driver: local
+
+networks:
+    traefik-network:
+        name: traefik-network
+        driver: bridge
+
+services:
+    mysql:
+        image: mysql:latest
+        command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+        container_name: templatesql
+        environment:
+            - MYSQL_DATABASE=template
+            - MYSQL_USER=daniel
+            - MYSQL_PASSWORD=daniel
+            - MYSQL_ROOT_PASSWORD=root
+            - TZ=America/Sao_Paulo
+        volumes:
+            - template-mysql-data:/var/lib/mysql
+        working_dir: /srv/vhosts/phpApp
+        ports:
+            - 23304:3306
+        networks:
+            - traefik-network
+
+    app:
+        build: .
+        sysctls:
+            - net.ipv4.ip_unprivileged_port_start=0
+        container_name: templateapp
+        labels:
+            - "traefik.enable=true"
+            - "traefik.docker.network=traefik-network"
+            - "traefik.http.routers.app.rule=Host(`template.docker.localhost`)"
+            - "traefik.http.routers.app.tls=true"
+        ports:
+            - 8888:80
+        env_file:
+            - ./template/.env
+        volumes:
+            - ./template:/var/www/html
+        depends_on:
+            - mysql
+        networks:
+            - traefik-network
+
+    reverse-proxy:
+        image: traefik:v2.7
+        container_name: templateproxy
+        restart: unless-stopped
+        security_opt:
+            - no-new-privileges:true
+        ports:
+            #Web
+            - 80:80
+            - 443:443
+            - 3000:3000
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+            # Map the static configuration into the container
+            - ./traefik/config/static.yml:/etc/traefik/traefik.yml:ro
+            # Map the dynamic configuration into the container
+            - ./traefik/config/dynamic.yml:/etc/traefik/dynamic.yml:ro
+            # Map the certificats into the container
+            - ./traefik/certs:/etc/certs:ro
+        networks:
+            - traefik-network
+
+    node:
+        image: node:alpine
+        container_name: templatenode
+        ports:
+            - 5173:5173
+        working_dir: /app
+        user: node
+        volumes:
+            - ./template/:/app
+        entrypoint: ./entrypoint.node.sh
