@@ -13,6 +13,5 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', [\App\Http\Controllers\WelcomeController::class, 'welcome']);
+Route::post('/simulate', [\App\Http\Controllers\WelcomeController::class, 'simulate'])->name('simulate');
