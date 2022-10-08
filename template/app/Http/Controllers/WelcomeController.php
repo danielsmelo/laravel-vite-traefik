@@ -192,9 +192,12 @@ class WelcomeController extends Controller
             $calendario = $this->sortCalendar($calendario);
         }
 
+        $statistics = $this->getStatistics($result);
+
         return [
             'success' => true,
-            'result' => $result
+            'result' => $result,
+            'statistics' => $statistics,
         ];
     }
 
@@ -302,5 +305,70 @@ class WelcomeController extends Controller
             default:
                 return $data['tsAverage'];
         }
+    }
+
+    public function getStatistics($result)
+    {
+
+        $totalClients = end($result)['clientCount'];
+
+        $queueClients = 0;
+
+        foreach ($result as $key => $value) {
+            $test = $value['queueState'];
+            $test2 = $value['event'];
+
+            if ($value['event'] == 'Chegada' && $value['queueState'] != '-') {
+                $queueClients++;
+            }
+        }
+
+        $averageTimeQueue = end($result)['sumTF'] / $totalClients;
+
+        $queueProbability = $queueClients / $totalClients;
+
+        $employeeFreeTime = 0;
+
+        $event = null;
+        $nextEvent = null;
+        $resultAux = $result;
+
+        while ($resultAux) {
+            if ($nextEvent != null && $nextEvent['employeeState'] == 'Livre') {
+                $nextEvent = array_shift($resultAux);
+
+                continue;
+            } elseif ($nextEvent != null && $nextEvent['employeeState'] != 'Livre') {
+                $employeeFreeTime += $nextEvent['globalTime'] - $event['globalTime'];
+                $nextEvent = null;
+            }
+
+            $event = array_shift($resultAux);
+
+            $employeeState = $event['employeeState'];
+
+            if ($event['employeeState'] == 'Livre') {
+                $nextEvent = array_shift($resultAux);
+            } else {
+                continue;
+            }
+        }
+
+        $employeeFreeTimeProportion = $employeeFreeTime / end($result)['globalTime'];
+
+        $employeeBusyTime = 1 - $employeeFreeTimeProportion;
+
+        $averageTimeo0nSystem = end($result)['sumTS'] / $totalClients;
+
+        return [
+            'totalClients' => floatval(number_format((float)$totalClients, 2, '.', '')),
+            'queueClients' => floatval(number_format((float)$queueClients, 2, '.', '')),
+            'averageTimeQueue' => floatval(number_format((float)$averageTimeQueue, 2, '.', '')),
+            'queueProbability' => floatval(number_format((float)$queueProbability, 2, '.', '')),
+            'employeeFreeTime' => floatval(number_format((float)$employeeFreeTime, 2, '.', '')),
+            'employeeFreeTimeProportion' => floatval(number_format((float)$employeeFreeTimeProportion, 2, '.', '')),
+            'employeeBusyTime' => floatval(number_format((float)$employeeBusyTime, 2, '.', '')),
+            'averageTimeo0nSystem' => floatval(number_format((float)$averageTimeo0nSystem, 2, '.', '')),
+        ];
     }
 }

@@ -78,6 +78,33 @@
                         </div>
                     </div>
                 </div>
+                <div class="section__content section__content--p30">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <h6 class="m-0 font-weight-bold text-primary">Tabela Usada</h6>
+                        </div>
+                        <div class="card-body">
+                            <img src="{{ Vite::asset('resources/images/table.png') }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="section__content section__content--p30">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                            <h6 class="m-0 font-weight-bold text-primary">Cálculos</h6>
+                        </div>
+                        <div class="card-body">
+                            <p>Total de clientes atendidos: <span id="totalClients"> - </span></p>
+                            <p>Total de clientes atendidos que esperaram na fila: <span id="queueClients"> - </span></p>
+                            <p>Tempo médio de espera na fila: <span id="averageTimeQueue"> - </span></p>
+                            <p>Probabilidade de um cliente esperar na fila: <span id="queueProbability"> - </span></p>
+                            <p>Proporção do tempo livre do servidor: <span id="employeeFreeTimeProportion"> - </span></p>
+                            <p>Proporção do tempo ocupado do servidor: <span id="employeeBusyTime"> - </span></p>
+                            <p>Total de tempo livre do servidor: <span id="employeeFreeTime"> - </span></p>
+                            <p>Tempo médio no sistema: <span id="averageTimeo0nSystem"> - </span></p>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -190,6 +217,15 @@
                             }
 
                             oTable.draw();
+
+                            $('#totalClients').text(response.statistics.totalClients);
+                            $('#queueClients').text(response.statistics.queueClients);
+                            $('#averageTimeQueue').text(response.statistics.averageTimeQueue);
+                            $('#queueProbability').text(response.statistics.queueProbability);
+                            $('#employeeFreeTime').text(response.statistics.employeeFreeTime);
+                            $('#employeeFreeTimeProportion').text(response.statistics.employeeFreeTimeProportion);
+                            $('#employeeBusyTime').text(response.statistics.employeeBusyTime);
+                            $('#averageTimeo0nSystem').text(response.statistics.averageTimeo0nSystem);
                         }
                     }).fail(function(err) {
                         let message = 'Erro ao criar a simulação'
