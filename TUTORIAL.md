@@ -14,13 +14,14 @@ Percebe-se que nesse arquivo é especificado o ambiente em que a aplicação fun
 
 ## Docker Compose
 
-O arquivo docker-compose.yml é usado para configurar e gerenciar os containers do Docker em um ambiente de desenvolvimento. No exemplo usado é definido quatro serviços: mysql, app, reverse-proxy, e node.
+O arquivo docker-compose.yml é usado para configurar e gerenciar os containers do Docker em um ambiente de desenvolvimento. Para o projeto deste repositório são definidos quatro serviços: mysql, app, reverse-proxy, e node.
 
 O serviço mysql usa a imagem do MySQL mais recente e define algumas configurações de ambiente, como o nome do banco de dados, usuário e senha. Ele também expõe a porta 23304 para acessar o banco de dados fora do container.
 
 O serviço app é construído a partir do contexto atual e usa labels para habilitar o suporte ao Traefik, que é usado como proxy reverso. Ele expõe a porta 8888 e depende do serviço mysql para funcionar corretamente.
 
 O serviço reverse-proxy usa a imagem do Traefik v2.7, expõe as portas 80, 443 e 3000, e usa volumes para mapear configurações e certificados. Ele também usa o Docker socket do host para detectar automaticamente os outros serviços e configurar rotas para eles.
+
 O serviço node usa a imagem do Node.js e expõe a porta 5173. Ele define uma pasta de trabalho e volumes para acessar arquivos fora do container e executa um script de entrada específico.
 
 Além disso, o arquivo também define volumes e redes que são usados pelos serviços. O volume template-mysql-data é usado para armazenar dados persistentes do MySQL e a rede traefik-network é usada para permitir que os serviços se comuniquem entre si.
