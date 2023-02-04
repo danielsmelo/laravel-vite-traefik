@@ -31,6 +31,7 @@ RUN docker-php-ext-install pdo pdo_mysql \
     && docker-php-ext-install zip
 
 RUN a2enmod rewrite
+RUN a2enmod headers
 
 RUN echo "zend_extension=xdebug" > /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
     && echo "xdebug.mode=develop,debug" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
